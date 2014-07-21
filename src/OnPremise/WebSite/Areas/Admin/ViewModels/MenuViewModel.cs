@@ -6,12 +6,12 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.ViewModels
     {
         public MenuViewModel(IConfigurationRepository configuration)
         {
-            this.ShowIdentityProviders = configuration.WSFederation.Enabled && configuration.WSFederation.EnableFederation;
+            this.ShowIdentityProviders = (configuration.WSFederation.Enabled && configuration.WSFederation.EnableFederation) || configuration.OAuth2.EnableJwtBearerFlow;
             this.ShowOpenIdConnectClients = configuration.OpenIdConnect.Enabled;
             this.ShowOAuthClients = configuration.OAuth2.Enabled;
             this.ShowOAuthTokens = 
                 configuration.OAuth2.Enabled && 
-                (configuration.OAuth2.EnableCodeFlow || configuration.OAuth2.EnableResourceOwnerFlow);
+                (configuration.OAuth2.EnableCodeFlow || configuration.OAuth2.EnableResourceOwnerFlow || configuration.OAuth2.EnableJwtBearerFlow);
             this.ShowClientCerts = configuration.Global.EnableClientCertificateAuthentication;
             this.ShowIdentityDelegation = configuration.WSTrust.Enabled && configuration.WSTrust.EnableDelegation;
         }

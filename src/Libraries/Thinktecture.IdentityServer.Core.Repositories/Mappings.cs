@@ -214,7 +214,8 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
                 EnableImplicitFlow = entity.EnableImplicitFlow,
                 EnableResourceOwnerFlow = entity.EnableResourceOwnerFlow,
                 EnableConsent = entity.EnableConsent,
-                EnableCodeFlow = entity.EnableCodeFlow
+                EnableCodeFlow = entity.EnableCodeFlow,
+                EnableJwtBearerFlow = entity.EnableJwtBearerFlow
             };
         }
 
@@ -226,7 +227,8 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
                 EnableImplicitFlow = model.EnableImplicitFlow,
                 EnableResourceOwnerFlow = model.EnableResourceOwnerFlow,
                 EnableConsent = model.EnableConsent,
-                EnableCodeFlow = model.EnableCodeFlow
+                EnableCodeFlow = model.EnableCodeFlow,
+                EnableJwtBearerFlow = model.EnableJwtBearerFlow
             };
         }
         #endregion
@@ -440,7 +442,8 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
                 AllowRefreshToken = client.AllowRefreshToken,
                 AllowCodeFlow = client.AllowCodeFlow,
                 AllowImplicitFlow = client.AllowImplicitFlow,
-                AllowResourceOwnerFlow = client.AllowResourceOwnerFlow
+                AllowResourceOwnerFlow = client.AllowResourceOwnerFlow,
+                AllowJwtBearerFlow = client.AllowJwtBearerFlow
             };
         }
         public static void UpdateEntity(this Models.Client client, Entities.Client target)
@@ -458,6 +461,7 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
             target.AllowResourceOwnerFlow = client.AllowResourceOwnerFlow;
             target.AllowImplicitFlow = client.AllowImplicitFlow;
             target.AllowCodeFlow = client.AllowCodeFlow;
+            target.AllowJwtBearerFlow = client.AllowJwtBearerFlow;
         }
         #endregion
 
@@ -481,20 +485,7 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
         {
             return new List<Models.IdentityProvider>(
                 from idp in idps
-                select new Models.IdentityProvider
-                {
-                    ID = idp.ID,
-                    Name = idp.Name,
-                    Enabled = idp.Enabled,
-                    DisplayName = idp.DisplayName,
-                    Type = (IdentityProviderTypes)idp.Type,
-                    ShowInHrdSelection = idp.ShowInHrdSelection,
-                    WSFederationEndpoint = idp.WSFederationEndpoint,
-                    IssuerThumbprint = idp.IssuerThumbprint,
-                    ClientID = idp.ClientID,
-                    ClientSecret = idp.ClientSecret,
-                    ProviderType = (OAuth2ProviderTypes?)idp.OAuth2ProviderType,
-                });
+                select ToDomainModel(idp));
         }
 
         public static Models.IdentityProvider ToDomainModel(this Entities.IdentityProvider idp)
@@ -504,7 +495,7 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
                 return null;
             }
 
-            return new Models.IdentityProvider
+            var ret = new Models.IdentityProvider
             {
                 ID = idp.ID,
                 Name = idp.Name,
@@ -518,6 +509,19 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
                 ClientSecret = idp.ClientSecret,
                 ProviderType = (OAuth2ProviderTypes?)idp.OAuth2ProviderType,
             };
+
+            if (idp.AudienceRestrictions != null)
+            {
+                ret.AudienceRestrictions =
+                    (from item in idp.AudienceRestrictions
+                     select item.AudienceUri).ToArray();
+            }
+            else
+            {
+                ret.AudienceRestrictions = new string[0];
+            }
+
+            return ret;
         }
 
         public static Entities.IdentityProvider ToEntity(this Models.IdentityProvider idp)
@@ -550,6 +554,26 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
             entity.ClientID = idp.ClientID;
             entity.ClientSecret = idp.ClientSecret;
             entity.OAuth2ProviderType = (int?)idp.ProviderType;
+
+            if (idp.AudienceRestrictions != null)
+            {
+                var urisToRemove = entity.AudienceRestrictions.Where(x => !idp.AudienceRestrictions.Contains(x.AudienceUri)).ToArray();
+                foreach (var remove in urisToRemove)
+                {
+                    entity.AudienceRestrictions.Remove(remove);
+                }
+            }
+
+            if (idp.AudienceRestrictions != null)
+            {
+                var urisToAdd = entity.AudienceRestrictions != null ?
+                    idp.AudienceRestrictions.Where(x => !entity.AudienceRestrictions.Any(y => y.AudienceUri == x)).ToArray() :
+                    idp.AudienceRestrictions;
+                foreach (var add in urisToAdd)
+                {
+                    entity.AudienceRestrictions.Add(new IdentityProviderAudienceRestriction { AudienceUri = add });
+                }
+            }
         }
 
         #endregion

@@ -63,6 +63,9 @@ namespace Thinktecture.IdentityServer.Models
         [Display(Order = 10, ResourceType = typeof (Resources.Models.IdentityProvider), Name = "ClientSecret", Description = "ClientSecretDescription")]
         public string ClientSecret { get; set; }
 
+        [ScaffoldColumn(false)]
+        public string[] AudienceRestrictions { get; set; }
+
         public System.Collections.Generic.IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             List<ValidationResult> errors = new List<ValidationResult>();

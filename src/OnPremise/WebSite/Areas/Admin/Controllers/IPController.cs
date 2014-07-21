@@ -26,7 +26,7 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
 
         public ActionResult Index()
         {
-            var vm = new IdentityProvidersViewModel(this.identityProviderRepository);
+            var vm = new IdentityProvidersIndexViewModel(this.identityProviderRepository);
             return View("Index", vm);
         }
         
@@ -37,14 +37,14 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
             if (action == "delete") return Delete(list);
             if (action == "new") return Create();
             ModelState.AddModelError("", Resources.IPController.InvalidAction);
-            var vm = new IdentityProvidersViewModel(this.identityProviderRepository);
+            var vm = new IdentityProvidersIndexViewModel(this.identityProviderRepository);
             return View("Index", vm);
         }
         
         [ChildActionOnly]
         public ActionResult Menu()
         {
-            var list = new IdentityProvidersViewModel(this.identityProviderRepository);
+            var list = new IdentityProvidersIndexViewModel(this.identityProviderRepository);
             if (list.IdentityProviders.Any())
             {
                 var vm = new ChildMenuViewModel
@@ -88,7 +88,7 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
                     ModelState.AddModelError("", Resources.IPController.ErrorDeletingIdentityProviders);
                 }
             }
-            var vm = new IdentityProvidersViewModel(this.identityProviderRepository);
+            var vm = new IdentityProvidersIndexViewModel(this.identityProviderRepository);
             return View("Index", vm);
         }
 

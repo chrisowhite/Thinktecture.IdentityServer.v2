@@ -27,5 +27,7 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
         public bool AllowResourceOwnerFlow { get; set; }
 
         public bool AllowCodeFlow { get; set; }
+
+        public bool AllowJwtBearerFlow { get; set; }
     }
 }

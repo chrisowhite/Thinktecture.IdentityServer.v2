@@ -16,7 +16,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>false</UseIISExpress>
-    <IISExpressSSLPort>44300</IISExpressSSLPort>
+    <IISExpressSSLPort>
+    </IISExpressSSLPort>
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
@@ -639,13 +640,14 @@
     <Compile Include="Areas\Admin\ViewModels\ClientCertificatesForUserViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\ClientCertificatesViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\CertificateInputModel.cs" />
+    <Compile Include="Areas\Admin\ViewModels\IdentityProviderViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\OpenIdConnectClientIndexViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\OpenIdConnectClientViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\MenuViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\OAuthClientIndexViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\DelegationSettingsForUserInputModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\DelegationViewModel.cs" />
-    <Compile Include="Areas\Admin\ViewModels\IdentityProvidersViewModel.cs" />
+    <Compile Include="Areas\Admin\ViewModels\IdentityProvidersIndexViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\IPCertInputModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\KeyConfigurationViewModel.cs" />
     <Compile Include="Areas\Admin\ViewModels\OAuthClientViewModel.cs" />
@@ -1636,7 +1638,16 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <SaveServerSettingsInUserFile>True</SaveServerSettingsInUserFile>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>https://localhost</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
     </VisualStudio>

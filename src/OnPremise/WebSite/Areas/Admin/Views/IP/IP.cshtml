@@ -1,19 +1,19 @@
-﻿@model Thinktecture.IdentityServer.Models.IdentityProvider
+﻿@model IdentityProviderViewModel
 @using Thinktecture.IdentityServer.Web.Areas.Admin.App_LocalResources.IP
 @using Thinktecture.IdentityServer.Web.Utility
 
 @{
-    if (Model.ID == 0)
+    if (Model.Provider.ID == 0)
     {
         ViewBag.Title = IP_cshtml.NewIdentityProvider;
     }
     else
     {
-        ViewBag.Title = string.Format(IP_cshtml.IdentityProvider, Model.Name);
+        ViewBag.Title = string.Format(IP_cshtml.IdentityProvider, Model.Provider.Name);
     }
 }
 @{
-    var action = Model.ID == 0 ? "Create" : "Update";
+    var action = Model.Provider.ID == 0 ? "Create" : "Update";
 }
 @using (Html.BeginForm(action, "IP", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
@@ -22,10 +22,16 @@
     <fieldset class="editor">
         <legend>@ViewBag.Title</legend>
 
-        @Html.EditorForModel()
+        @Html.EditorFor(x => x.Provider)
+
+        <div>
+            @Html.LabelFor(x => x.AudienceRestrictions)
+            @Html.EditorFor(x => x.AudienceRestrictions)
+            @Html.ValidatorFor(x => x.AudienceRestrictions)
+        </div>
 
         <div class="buttons">
-            @if (Model.ID > 0)
+            @if (Model.Provider.ID > 0)
             {
                 <button type="submit" name="action" value="save">@IP_cshtml.SaveChanges</button>
                 <button type="submit" name="action" value="delete">@IP_cshtml.Delete</button>

@@ -180,4 +180,10 @@
   <data name="RedirectUriMustBeHTTPS" xml:space="preserve">
     <value>Redirect URI must be HTTPS.</value>
   </data>
+  <data name="AllowJwtBearerFlow" xml:space="preserve">
+    <value>Allow JWT Bearer Flow</value>
+  </data>
+  <data name="AllowJwtBearerFlowDescription" xml:space="preserve">
+    <value>Allow JWT bearer flow.</value>
+  </data>
 </root>

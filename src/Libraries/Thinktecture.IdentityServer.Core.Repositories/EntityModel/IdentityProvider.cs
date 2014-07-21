@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Thinktecture.IdentityServer.Repositories.Sql
 {
@@ -24,7 +25,15 @@ namespace Thinktecture.IdentityServer.Repositories.Sql
         public string ClientID { get; set; }
         public string ClientSecret { get; set; }
         public int? OAuth2ProviderType { get; set; }
+        public ICollection<IdentityProviderAudienceRestriction> AudienceRestrictions { get; set; }
 
         public bool Enabled { get; set; }
+    }
+
+    public class IdentityProviderAudienceRestriction
+    {
+        public int ID { get; set; }
+        [Required]
+        public string AudienceUri { get; set; }
     }
 }

@@ -50,6 +50,9 @@ namespace Thinktecture.IdentityServer.Models
         [Display(ResourceType = typeof (Resources.Models.Client), Name = "AllowCodeFlow", Description = "AllowCodeFlowDescription")]
         public bool AllowCodeFlow { get; set; }
 
+        [Display(ResourceType = typeof(Resources.Models.Client), Name = "AllowJwtBearerFlow", Description = "AllowJwtBearerFlowDescription")]
+        public bool AllowJwtBearerFlow { get; set; }
+
         [Display(ResourceType = typeof (Resources.Models.Client), Name = "AllowRefreshToken", Description = "AllowRefreshTokenDescription")]
         public bool AllowRefreshToken { get; set; }
 

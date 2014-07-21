@@ -6,6 +6,7 @@
 using System;
 using System.ComponentModel.Composition;
 using System.IdentityModel.Protocols.WSTrust;
+using System.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
@@ -31,17 +32,21 @@ namespace Thinktecture.IdentityServer.Protocols.OAuth2
         [Import]
         public ICodeTokenRepository CodeTokenRepository { get; set; }
 
+        [Import]
+        public IIdentityProviderRepository IdentityProviderRepository { get; set; }
+
         public OAuth2TokenController()
         {
             Container.Current.SatisfyImportsOnce(this);
         }
 
-        public OAuth2TokenController(IUserRepository userRepository, IConfigurationRepository configurationRepository, IClientsRepository clientsRepository, ICodeTokenRepository codeTokenRepository)
+        public OAuth2TokenController(IUserRepository userRepository, IConfigurationRepository configurationRepository, IClientsRepository clientsRepository, ICodeTokenRepository codeTokenRepository, IIdentityProviderRepository identityProviderRegistry)
         {
             UserRepository = userRepository;
             ConfigurationRepository = configurationRepository;
             ClientsRepository = clientsRepository;
             CodeTokenRepository = codeTokenRepository;
+            IdentityProviderRepository = identityProviderRegistry;
         }
 
         public HttpResponseMessage Post([FromBody] TokenRequest tokenRequest)
@@ -69,6 +74,10 @@ namespace Thinktecture.IdentityServer.Protocols.OAuth2
             else if (string.Equals(tokenRequest.Grant_Type, OAuth2Constants.GrantTypes.RefreshToken, System.StringComparison.Ordinal))
             {
                 return ProcessRefreshTokenRequest(client, tokenRequest.Refresh_Token, tokenType);
+            }
+            else if (string.Equals(tokenRequest.Grant_Type, OAuth2Constants.GrantTypes.JWT))
+            {
+                return ProcessJwtBearerTokenRequest(tokenRequest, client, tokenRequest.Assertion, tokenType);
             }
 
             Tracing.Error("invalid grant type: " + tokenRequest.Grant_Type);
@@ -130,6 +139,40 @@ namespace Thinktecture.IdentityServer.Protocols.OAuth2
 
             Tracing.Error("Refresh token not found. " + client.Name + " / " + codeToken);
             return OAuthErrorResponseMessage(OAuth2Constants.Errors.InvalidGrant);
+        }
+
+        private HttpResponseMessage ProcessJwtBearerTokenRequest(TokenRequest request, Client client, string bearerToken, string tokenType)
+        {
+            var handler = new System.IdentityModel.Tokens.JwtSecurityTokenHandler();
+            var registry = new ConfigurationBasedIssuerNameRegistry();
+
+            registry.AddTrustedIssuer(ConfigurationRepository.Global.IssuerUri, ConfigurationRepository.Keys.SigningCertificate.Thumbprint);
+
+            var identityProviders = IdentityProviderRepository.GetAll();
+            foreach(var provider in identityProviders)
+                registry.AddTrustedIssuer(provider.IssuerThumbprint, provider.Name);
+
+            var resolver = new NamedKeyIssuerTokenResolver();
+            resolver.SecurityKeys.Add(client.ClientId, new[] { new InMemorySymmetricSecurityKey(Convert.FromBase64String(client.ClientSecret)) });
+            
+            var config = new SecurityTokenHandlerConfiguration()
+            {
+                IssuerNameRegistry = registry,
+                IssuerTokenResolver = resolver
+            };
+
+            handler.Configuration = config;
+
+            var token = handler.ReadToken(bearerToken) as JwtSecurityToken;
+
+            // Validate audience
+
+            // Validate issuer 
+
+            var claimsIdentity = handler.ValidateToken(token);
+
+
+            return CreateTokenResponse(claimsIdentity.Identity.Name, client, new EndpointReference(request.Scope), tokenType, client.AllowRefreshToken);
         }
 
         private HttpResponseMessage CreateTokenResponse(string userName, Client client, EndpointReference scope, string tokenType, bool includeRefreshToken)
