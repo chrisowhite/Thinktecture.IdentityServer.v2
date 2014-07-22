@@ -21,7 +21,7 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.ViewModels
         }
 
         [DataType(DataType.MultilineText)]
-        [Display(Name = "Audience Restrictions", Description = "LFor OAuth2 bearer flow. List of URIs of allowed bearer token audiences.")]
+        [Display(Name = "Audience Restrictions", Description = "For OAuth2 bearer flow. List of URIs of allowed bearer token audiences.")]
         public string AudienceRestrictions { get; set; }
 
         public string[] ParsedAudienceRestrictions

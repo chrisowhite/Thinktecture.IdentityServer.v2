@@ -94,7 +94,12 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
 
         private ActionResult Create()
         {
-            return View("IP", new IdentityProvider());
+            var model = new IdentityProviderViewModel()
+            {
+                Provider = new IdentityProvider()
+            };
+
+            return View("IP", model);
         }
 
         public ActionResult IP(int id)
@@ -106,15 +111,15 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IdentityProvider model, IPCertInputModel cert)
+        public ActionResult Create(IdentityProviderViewModel model, IPCertInputModel cert)
         {
             if (cert != null && cert.Cert != null)
             {
-                model.IssuerThumbprint = cert.Cert.Thumbprint;
-                if (model.IssuerThumbprint != null)
+                model.Provider.IssuerThumbprint = cert.Cert.Thumbprint;
+                if (model.Provider.IssuerThumbprint != null)
                 {
                     ModelState["IssuerThumbprint"].Errors.Clear();
-                    ModelState["IssuerThumbprint"].Value = new ValueProviderResult(model.IssuerThumbprint, model.IssuerThumbprint, ModelState["IssuerThumbprint"].Value.Culture);
+                    ModelState["IssuerThumbprint"].Value = new ValueProviderResult(model.Provider.IssuerThumbprint, model.Provider.IssuerThumbprint, ModelState["IssuerThumbprint"].Value.Culture);
                 }
             } 
 
@@ -122,9 +127,10 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
             {
                 try
                 {
-                    this.identityProviderRepository.Add(model);
+                    model.Provider.AudienceRestrictions = model.ParsedAudienceRestrictions;
+                    this.identityProviderRepository.Add(model.Provider);
                     TempData["Message"] = Resources.IPController.IdentityProviderCreated;
-                    return RedirectToAction("IP", new { id=model.ID });
+                    return RedirectToAction("IP", new { id=model.Provider.ID });
                 }
                 catch (ValidationException ex)
                 {
@@ -137,24 +143,24 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
             }
             
             // if we're here, then we should clear name so the view thinks it's new
-            model.ID = 0;
+            model.Provider.ID = 0;
             return View("IP", model);
         }
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Update(IdentityProvider model, IPCertInputModel cert, string action)
+        public ActionResult Update(IdentityProviderViewModel model, IPCertInputModel cert, string action)
         {
             if (action == "delete")
             {
-                this.identityProviderRepository.Delete(model.ID);
+                this.identityProviderRepository.Delete(model.Provider.ID);
                 TempData["Message"] = Resources.IPController.IdentityProvidersDeleted;
                 return RedirectToAction("Index");
             }
 
             if (cert != null && cert.Cert != null)
             {
-                model.IssuerThumbprint = cert.Cert.Thumbprint;
+                model.Provider.IssuerThumbprint = cert.Cert.Thumbprint;
                 ModelState["IssuerThumbprint"].Errors.Clear();
             }
 
@@ -162,9 +168,9 @@ namespace Thinktecture.IdentityServer.Web.Areas.Admin.Controllers
             {
                 try
                 {
-                    this.identityProviderRepository.Update(model);
+                    this.identityProviderRepository.Update(model.Provider);
                     TempData["Message"] = Resources.IPController.IdentityProviderUpdated; ;
-                    return RedirectToAction("IP", new { id = model.ID });
+                    return RedirectToAction("IP", new { id = model.Provider.ID });
                 }
                 catch (ValidationException ex)
                 {
